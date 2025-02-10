@@ -8,7 +8,8 @@ const getAllQuestions = async (req, res) => {
 };
 
 const addQuestion = async (req, res) => {
-  const { question, answer, codeSnippet, domain, referenceUrl } = req.body;
+  const { question, answer, codeSnippet, domain, referenceUrl, timeStamp } =
+    req.body;
   if (!question || !answer) {
     return res.status(400).json({ message: 'Question & answer are required.' });
   }
@@ -27,14 +28,11 @@ const addQuestion = async (req, res) => {
       codeSnippet: codeSnippet,
       domain: domain,
       referenceUrl: referenceUrl,
+      timeStamp: timeStamp,
     });
     console.log(result);
 
-    res.status(201).json({
-      success: `New question created in ${
-        domain ? domain : 'Miscellaneous'
-      } domain!`,
-    });
+    res.status(201).json(result);
   } catch (err) {
     res.status(500).json({
       message: err.message,
@@ -43,7 +41,7 @@ const addQuestion = async (req, res) => {
 };
 
 const deleteQuestion = async (req, res) => {
-  const { id } = req.body;
+  const { id } = req.params;
   if (!id) return res.status(400).json({ message: 'Question ID required.' });
 
   const question = await Question.findOne({ _id: id }).exec();
@@ -56,7 +54,8 @@ const deleteQuestion = async (req, res) => {
 };
 
 const updateQuestion = async (req, res) => {
-  const { id, question, answer, codeSnippet, domain, referenceUrl } = req.body;
+  const { id, question, answer, codeSnippet, domain, referenceUrl, timeStamp } =
+    req.body;
 
   if (!id || !question || !answer)
     return res
@@ -68,23 +67,16 @@ const updateQuestion = async (req, res) => {
   if (!oldQuestion)
     return res.status(204).json({ message: 'Question not found.' });
 
-  const dublicate = await Question.findOne({ question: question }).exec();
-  if (dublicate)
-    return res.status(400).json({ message: 'Question already exists.' });
-
   oldQuestion.question = question;
   oldQuestion.answer = answer;
   oldQuestion.codeSnippet = codeSnippet;
   oldQuestion.domain = domain;
   oldQuestion.referenceUrl = referenceUrl;
+  oldQuestion.timeStamp = timeStamp;
 
   const result = await oldQuestion.save();
   console.log(result);
-  res.json({
-    message: `This question from ${
-      domain ? domain : 'miscellaneous'
-    } domain has been updated.`,
-  });
+  res.json(result);
 };
 
 const getQuestion = async (req, res) => {
@@ -97,10 +89,24 @@ const getQuestion = async (req, res) => {
   res.json(question);
 };
 
+const getQuestionsByDomain = async (req, res) => {
+  const { domain } = req.params;
+  console.log(domain);
+
+  if (!domain)
+    return res.status(400).json({ message: 'Domain name is required' });
+
+  const domainQuestions = await Question.find({ domain: domain });
+  if (!domainQuestions)
+    return res.status(400).json({ message: 'No questions in this domain' });
+  res.json(domainQuestions);
+};
+
 module.exports = {
   getAllQuestions,
   addQuestion,
   updateQuestion,
   deleteQuestion,
   getQuestion,
+  getQuestionsByDomain,
 };

@@ -6,9 +6,11 @@ router
   .route('/')
   .get(questionsController.getAllQuestions)
   .post(questionsController.addQuestion)
-  .delete(questionsController.deleteQuestion)
   .put(questionsController.updateQuestion);
 
 router.route('/:id').get(questionsController.getQuestion);
+router.route('/:id').delete(questionsController.deleteQuestion);
+
+router.route('/domains/:domain').get(questionsController.getQuestionsByDomain);
 
 module.exports = router;

@@ -11,11 +11,9 @@ const questionsSchema = new Schema({
     required: true,
   },
   codeSnippet: String,
-  domain: {
-    type: String,
-    default: 'miscellaneous',
-  },
+  domain: String,
   referenceUrl: String,
+  timeStamp: String,
 });
 
 module.exports = mongoose.model('Question', questionsSchema);
