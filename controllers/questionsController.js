@@ -91,14 +91,13 @@ const getQuestion = async (req, res) => {
 
 const getQuestionsByDomain = async (req, res) => {
   const { domain } = req.params;
-  console.log(domain);
-
   if (!domain)
     return res.status(400).json({ message: 'Domain name is required' });
 
   const domainQuestions = await Question.find({ domain: domain });
   if (!domainQuestions)
     return res.status(400).json({ message: 'No questions in this domain' });
+
   res.json(domainQuestions);
 };
 
